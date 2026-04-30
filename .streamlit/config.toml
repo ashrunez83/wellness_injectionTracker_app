@@ -1,0 +1,7 @@
+[theme]
+base="light"
+primaryColor="#A68A7A"        # taupe accent
+backgroundColor="#F5F2EF"     # soft tan background
+secondaryBackgroundColor="#FFFFFF"
+textColor="#2F2F2F"
+font="sans serif"
