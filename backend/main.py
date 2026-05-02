@@ -8,13 +8,27 @@ import json
 import uuid
 import os
 from pydantic import Field
+from sqlalchemy import create_engine
 
 app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"status": "ok"}
 
 # -------------------------------
 # CONFIG
 # ------------------------------
-DATABASE_URL = "postgresql://postgres.qidesrupzvkhlebzunbo:QdSnIW2IkCi3vAut@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set")
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
+
 print("DATABASE_URL:", DATABASE_URL)
 
 # -------------------------------
