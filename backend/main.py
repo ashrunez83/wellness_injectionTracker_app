@@ -8,7 +8,6 @@ import json
 import uuid
 import os
 from pydantic import Field
-from sqlalchemy import create_engine
 
 app = FastAPI()
 
@@ -20,16 +19,18 @@ def root():
 # CONFIG
 # ------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL")
+engine = None
 
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set")
+if DATABASE_URL:
+    try:
+        from sqlalchemy import create_engine
+        engine = create_engine(DATABASE_URL)
+        print("Database connected")
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True
-)
-
-print("DATABASE_URL:", DATABASE_URL)
+    except Exception as e:
+        print(f" DB connection failed: {e}")
+else:
+    print("DATABASE_URL not set - running without DB")                                                                         
 
 # -------------------------------
 # DB HELPER

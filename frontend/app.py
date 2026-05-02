@@ -25,9 +25,9 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("Orelia ✨")
-st.subheader("Copper Rock Wellness Dashboard")
-st.success("App is live")
+st.markdown("""
+<div style="margin-top: 10px;"></div>
+""", unsafe_allow_html=True)
 # 🔹 Luxury Header
 st.markdown(
     f"""
@@ -82,9 +82,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-# -------------------------------
-# SESSION STATE
-# -------------------------------
+
 # -------------------------------
 # SESSION STATE DEFAULTS
 # -------------------------------
@@ -107,22 +105,64 @@ init_session_state()
 # LOGIN PAGE
 # -------------------------------
 def login_page():
-    # Add controlled vertical spacing (clean + predictable)
-    st.markdown("<div style='margin-top: 4vh;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+        <style>
+            .login-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 75vh;
+            }
 
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+            .login-card {
+                width: 380px;
+                padding: 40px 36px;
+                border-radius: 20px;
+                background: #FFFFFF;
+                box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+                border: 1px solid #E8E1D5;
+                text-align: center;
+            }
+
+            .login-brand {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.8rem;
+                margin-bottom: 6px;
+                color: #2E2A26;
+            }
+
+            .login-subtitle {
+                font-size: 0.9rem;
+                color: #7A6F66;
+                margin-bottom: 24px;
+            }
+
+            .stTextInput input {
+                text-align: center;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 1, 1])
 
     with col2:
-        render_page_header("Copper Rock Clinic", "Patient Tracking System")
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
-        st.markdown('<div class="content-card">', unsafe_allow_html=True)
+        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtitle">Copper Rock Clinic</div>', unsafe_allow_html=True)
+
+        st.markdown("""
+        <div style="text-align:center; margin-bottom:20px; font-size:12px; color:#9A9A9A;">
+            Secure access portal
+        </div>
+        """, unsafe_allow_html=True)
 
         with st.form("login_form"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             submitted = st.form_submit_button("Sign In")
-
-        st.markdown('</div>', unsafe_allow_html=True)
 
         if submitted:
             if username == "admin" and password == "admin123":
@@ -131,6 +171,9 @@ def login_page():
             else:
                 st.error("Invalid credentials")
 
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 # -------------------------------
 # MAIN APP FLOW
 # -------------------------------
