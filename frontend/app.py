@@ -73,11 +73,19 @@ except Exception as e:
 def login_page():
     st.markdown("""
         <style>
-            .login-container {
+           .login-container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 75vh;
+                height: 100vh;
+                margin-top: -80px; /* pulls it up under Streamlit padding */
+            }
+            .block-container {
+                padding-top: 0rem !important;
+            }
+            
+            header[data-testid="stHeader"] {
+                display: none;
             }
 
             .login-card {
