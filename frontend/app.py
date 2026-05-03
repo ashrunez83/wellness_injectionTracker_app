@@ -25,39 +25,6 @@ st.set_page_config(
     layout="wide",
 )
 
-st.markdown("""
-<div style="margin-top: 10px;"></div>
-""", unsafe_allow_html=True)
-# 🔹 Luxury Header
-st.markdown(
-    f"""
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding: 12px 0;
-    ">
-        <div>
-            <h1 style="margin:0; font-weight:600; letter-spacing:-0.5px;">
-                {CLINIC_NAME}
-            </h1>
-            <p style="margin:0; color:#9A9A9A; font-size:14px;">
-                Patient Management Dashboard
-            </p>
-        </div>
-        <div style="text-align:right;">
-            <p style="margin:0; font-size:12px; color:#B0B0B0;">
-                Powered by
-            </p>
-            <p style="margin:0; font-size:20px; font-weight:500; letter-spacing:0.5px;">
-                Orelia
-            </p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 st.divider()
 
 st.markdown("""
@@ -151,11 +118,14 @@ def login_page():
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
         st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-subtitle">Copper Rock Clinic</div>', unsafe_allow_html=True)
-
         st.markdown("""
-        <div style="text-align:center; margin-bottom:20px; font-size:12px; color:#9A9A9A;">
-            Secure access portal
+        <div style="text-align:center; margin-bottom:6px;">
+            <div style="font-size:1rem; font-weight:600; color:#2E2A26;">
+                Copper Rock Clinic
+            </div>
+            <div style="font-size:12px; color:#9A9A9A; margin-top:4px;">
+                Secure access portal
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -174,6 +144,23 @@ def login_page():
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        text-align: right;
+        font-family: 'Inter', sans-serif;
+    ">
+        <div style="font-size: 14px; font-weight: 500; color:#2E2A26;">
+            Orelia ✨
+        </div>
+        <div style="font-size: 11px; color:#9A9A9A;">
+            Clinic Management Systems
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 # -------------------------------
 # MAIN APP FLOW
 # -------------------------------
