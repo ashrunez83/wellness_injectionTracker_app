@@ -73,19 +73,23 @@ except Exception as e:
 def login_page():
     st.markdown("""
         <style>
-           .login-container {
+            /* Kill ALL Streamlit spacing */
+            .block-container {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            header[data-testid="stHeader"] {
+                display: none;
+            }
+
+            /* Full screen center */
+            .login-wrapper {
+                height: 100vh;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 100vh;
-                margin-top: -80px; /* pulls it up under Streamlit padding */
-            }
-            .block-container {
-                padding-top: 0rem !important;
-            }
-            
-            header[data-testid="stHeader"] {
-                display: none;
+                background: #F7F3E8;
             }
 
             .login-card {
@@ -93,82 +97,81 @@ def login_page():
                 padding: 40px 36px;
                 border-radius: 20px;
                 background: #FFFFFF;
-                box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+                box-shadow: 0 20px 60px rgba(0,0,0,0.08);
                 border: 1px solid #E8E1D5;
                 text-align: center;
             }
 
             .login-brand {
                 font-family: 'Playfair Display', serif;
-                font-size: 1.8rem;
+                font-size: 2rem;
                 margin-bottom: 6px;
                 color: #2E2A26;
             }
 
-            .login-subtitle {
-                font-size: 0.9rem;
-                color: #7A6F66;
+            .login-clinic {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #2E2A26;
+            }
+
+            .login-sub {
+                font-size: 12px;
+                color: #9A9A9A;
                 margin-bottom: 24px;
             }
 
             .stTextInput input {
                 text-align: center;
             }
+
+            /* Footer branding */
+            .orelial-footer {
+                position: fixed;
+                bottom: 20px;
+                right: 30px;
+                text-align: right;
+                font-family: 'Inter', sans-serif;
+            }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+    # Full wrapper
+    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1, 1, 1])
+    # Card
+    st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
-    with col2:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-
-        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <div style="text-align:center; margin-bottom:6px;">
-            <div style="font-size:1rem; font-weight:600; color:#2E2A26;">
-                Copper Rock Clinic
-            </div>
-            <div style="font-size:12px; color:#9A9A9A; margin-top:4px;">
-                Secure access portal
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submitted = st.form_submit_button("Sign In")
-
-        if submitted:
-            if username == "admin" and password == "admin123":
-                st.session_state["logged_in"] = True
-                st.rerun()
-            else:
-                st.error("Invalid credentials")
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
 
     st.markdown("""
-    <div style="
-        position: fixed;
-        bottom: 20px;
-        right: 30px;
-        text-align: right;
-        font-family: 'Inter', sans-serif;
-    ">
-        <div style="font-size: 14px; font-weight: 500; color:#2E2A26;">
-            Orelia ✨
-        </div>
-        <div style="font-size: 11px; color:#9A9A9A;">
-            Clinic Management Systems
-        </div>
+        <div class="login-clinic">Copper Rock Clinic</div>
+        <div class="login-sub">Secure access portal</div>
+    """, unsafe_allow_html=True)
+
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Sign In")
+
+    if submitted:
+        if username == "admin" and password == "admin123":
+            st.session_state["logged_in"] = True
+            st.rerun()
+        else:
+            st.error("Invalid credentials")
+
+    st.markdown('</div>', unsafe_allow_html=True)  # card
+    st.markdown('</div>', unsafe_allow_html=True)  # wrapper
+
+    # Footer
+    st.markdown("""
+    <div class="orelial-footer">
+        <div style="font-size:14px; font-weight:500;">Orelia ✨</div>
+        <div style="font-size:11px; color:#9A9A9A;">Clinic Management Systems</div>
     </div>
     """, unsafe_allow_html=True)
-# -------------------------------
+#---------------------
 # MAIN APP FLOW
 # -------------------------------
 # -------------------------------
