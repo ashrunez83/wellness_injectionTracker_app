@@ -76,6 +76,10 @@ def login_page():
             .block-container {
                 padding-top: 3rem !important;
             }
+            
+            [data-testid="stAppViewContainer"] {
+                background: linear-gradient(180deg, #F7F3E8 0%, #EFE7DA 100%);
+            }
 
             header[data-testid="stHeader"] {
                 display: none;
