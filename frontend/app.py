@@ -3,17 +3,6 @@ import streamlit as st
 # -------------------------------
 # SAFE IMPORTS (PREVENT CRASH)
 # -------------------------------
-try:
-    from api.client import api_get, api_post, api_put, api_delete
-    from views.dashboard import dashboard_page
-    from views.patients import patients_page
-    from views.inventory import inventory_page
-    from styles.css import GLOBAL_CSS
-    from utils.helpers import render_page_header
-    IMPORT_SUCCESS = True
-except Exception as e:
-    IMPORT_SUCCESS = False
-    IMPORT_ERROR = str(e)
 
 # 🔹 TEMP (later from login / DB)
 CLINIC_NAME = "Copper Rock Clinic"
@@ -24,8 +13,6 @@ st.set_page_config(
     page_icon="✨",
     layout="wide",
 )
-
-st.divider()
 
 st.markdown("""
 <style>
@@ -67,6 +54,18 @@ def init_session_state():
 
 
 init_session_state()
+
+try:
+    from api.client import api_get, api_post, api_put, api_delete
+    from views.dashboard import dashboard_page
+    from views.patients import patients_page
+    from views.inventory import inventory_page
+    from styles.css import GLOBAL_CSS
+    from utils.helpers import render_page_header
+    IMPORT_SUCCESS = True
+except Exception as e:
+    IMPORT_SUCCESS = False
+    IMPORT_ERROR = str(e)
 
 # -------------------------------
 # LOGIN PAGE
