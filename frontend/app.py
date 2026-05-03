@@ -135,8 +135,6 @@ def login_page():
 
     with col2:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
-
-        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-clinic">Copper Rock Clinic</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
@@ -157,7 +155,8 @@ def login_page():
     # Footer
     st.markdown("""
         <div class="footer">
-            <div style="font-weight:500;">Orelia ✨</div>
+            <div style="font-weight:500;"> Powered By 
+                Orelia ✨</div>
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
