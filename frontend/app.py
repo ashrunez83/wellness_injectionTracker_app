@@ -73,39 +73,27 @@ except Exception as e:
 def login_page():
     st.markdown("""
         <style>
-            /* Kill ALL Streamlit spacing */
             .block-container {
-                padding: 0 !important;
-                margin: 0 !important;
+                padding-top: 3rem !important;
             }
 
             header[data-testid="stHeader"] {
                 display: none;
             }
 
-            /* Full screen center */
-            .login-wrapper {
-                height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: #F7F3E8;
-            }
-
             .login-card {
-                width: 380px;
-                padding: 40px 36px;
-                border-radius: 20px;
+                padding: 36px 32px;
+                border-radius: 18px;
                 background: #FFFFFF;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.08);
                 border: 1px solid #E8E1D5;
+                box-shadow: 0 12px 30px rgba(0,0,0,0.06);
                 text-align: center;
             }
 
             .login-brand {
                 font-family: 'Playfair Display', serif;
                 font-size: 2rem;
-                margin-bottom: 6px;
+                margin-bottom: 4px;
                 color: #2E2A26;
             }
 
@@ -118,58 +106,60 @@ def login_page():
             .login-sub {
                 font-size: 12px;
                 color: #9A9A9A;
-                margin-bottom: 24px;
+                margin-bottom: 20px;
             }
 
             .stTextInput input {
-                text-align: center;
+                text-align: left;
             }
 
-            /* Footer branding */
-            .orelial-footer {
+            /* constrain form width */
+            div[data-testid="stForm"] {
+                width: 100% !important;
+            }
+
+            /* footer */
+            .footer {
                 position: fixed;
                 bottom: 20px;
                 right: 30px;
+                font-size: 12px;
+                color: #9A9A9A;
                 text-align: right;
-                font-family: 'Inter', sans-serif;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    # Full wrapper
-    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
+    # Center using columns (THIS is the correct way in Streamlit)
+    col1, col2, col3 = st.columns([1.2, 1, 1.2])
 
-    # Card
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
-    st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-clinic">Copper Rock Clinic</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
-    st.markdown("""
-        <div class="login-clinic">Copper Rock Clinic</div>
-        <div class="login-sub">Secure access portal</div>
-    """, unsafe_allow_html=True)
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submitted = st.form_submit_button("Sign In")
 
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Sign In")
+        if submitted:
+            if username == "admin" and password == "admin123":
+                st.session_state["logged_in"] = True
+                st.rerun()
+            else:
+                st.error("Invalid credentials")
 
-    if submitted:
-        if username == "admin" and password == "admin123":
-            st.session_state["logged_in"] = True
-            st.rerun()
-        else:
-            st.error("Invalid credentials")
-
-    st.markdown('</div>', unsafe_allow_html=True)  # card
-    st.markdown('</div>', unsafe_allow_html=True)  # wrapper
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Footer
     st.markdown("""
-    <div class="orelial-footer">
-        <div style="font-size:14px; font-weight:500;">Orelia ✨</div>
-        <div style="font-size:11px; color:#9A9A9A;">Clinic Management Systems</div>
-    </div>
+        <div class="footer">
+            <div style="font-weight:500;">Orelia ✨</div>
+            <div>Clinic Management Systems</div>
+        </div>
     """, unsafe_allow_html=True)
 #---------------------
 # MAIN APP FLOW
