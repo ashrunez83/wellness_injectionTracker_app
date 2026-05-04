@@ -319,7 +319,7 @@ def add_injection_page():
         response, result = api_post("/add_injection", payload)
 
         if response and response.status_code == 200 and "error" not in result:
-            st.success("Injection saved ✅")
+            st.session_state["injection_success"] = "Injection saved ✅"
             st.rerun()
         else:
             st.error(result.get("error"))
@@ -332,6 +332,17 @@ def selected_patient_record():
         return
 
     patient_uuid = st.session_state["selected_patient"]
+
+    for key in [
+        "patient_update_success",
+        "injection_success",
+        "lab_success",
+        "treatment_success",
+        "scan_success",
+    ]:
+        if key in st.session_state:
+            st.success(st.session_state[key])
+            del st.session_state[key]
 
     # -------------------------------
     # LOAD ALL DATA (FIXES EVERYTHING)
@@ -459,7 +470,7 @@ def selected_patient_record():
         response, result = api_put(f"/update_patient/{patient_uuid}", payload)
 
         if response and response.status_code == 200 and "error" not in result:
-            st.success("Saved ✅")
+            st.session_state["patient_update_success"] = "Patient data saved ✅"
             st.rerun()
         else:
             st.error(result.get("error"))
@@ -526,9 +537,10 @@ def selected_patient_record():
 def patients_page():
     render_page_header("Patient Management", "Search records, add patients, and log treatments")
 
-    if "success_msg" in st.session_state:
-        st.success(st.session_state["success_msg"])
-        del st.session_state["success_msg"]
+    for key in ["success_msg", "injection_success"]:
+        if key in st.session_state:
+            st.success(st.session_state[key])
+            del st.session_state[key]
 
     tab1, tab2, tab3 = st.tabs([
         "🔎 Patient Search",
