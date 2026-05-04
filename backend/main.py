@@ -8,6 +8,7 @@ from datetime import date, timedelta
 import json
 import uuid
 import os
+from urllib.parse import urlparse
 from pydantic import Field
 
 app = FastAPI()
@@ -55,6 +56,50 @@ def execute_query(query, params=None, fetch=True):
     finally:
         cur.close()
         conn.close()
+
+
+def database_config_summary():
+    if not DATABASE_URL:
+        return {
+            "configured": False,
+            "scheme": None,
+            "username": None,
+            "hostname": None,
+            "port": None,
+            "database": None,
+        }
+
+    parsed = urlparse(DATABASE_URL.strip())
+    return {
+        "configured": True,
+        "scheme": parsed.scheme,
+        "username": parsed.username,
+        "hostname": parsed.hostname,
+        "port": parsed.port,
+        "database": parsed.path.lstrip("/") if parsed.path else None,
+    }
+
+
+@app.get("/debug/db")
+def debug_db():
+    summary = database_config_summary()
+
+    try:
+        rows = execute_query("SELECT 1;")
+        return {
+            **summary,
+            "connection_ok": True,
+            "test_result": rows[0][0] if rows else None,
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                **summary,
+                "connection_ok": False,
+                "error": str(e),
+            },
+        )
 
 
 # -------------------------------
@@ -158,35 +203,39 @@ def home():
 
 @app.get("/patients")
 def get_patients():
-    rows = execute_query("""
-        SELECT 
-            patient_id,
-            patient_uuid,
-            first_name,
-            last_name,
-            date_of_birth,
-            phone,
-            email,
-            pre_lab_date,
-            testosterone_level
-        FROM patients
-        ORDER BY last_name, first_name;
-    """)
+    try:
+        rows = execute_query("""
+            SELECT 
+                patient_id,
+                patient_uuid,
+                first_name,
+                last_name,
+                date_of_birth,
+                phone,
+                email,
+                pre_lab_date,
+                testosterone_level
+            FROM patients
+            ORDER BY last_name, first_name;
+        """)
 
-    return [
-        {
-            "patient_id": r[0],
-            "patient_uuid": str(r[1]),
-            "first_name": r[2],
-            "last_name": r[3],
-            "date_of_birth": str(r[4]) if r[4] else None,
-            "phone": r[5],
-            "email": r[6],
-            "pre_lab_date": str(r[7]) if r[7] else None,
-            "testosterone_level": r[8]
-        }
-        for r in rows
-    ]
+        return [
+            {
+                "patient_id": r[0],
+                "patient_uuid": str(r[1]),
+                "first_name": r[2],
+                "last_name": r[3],
+                "date_of_birth": str(r[4]) if r[4] else None,
+                "phone": r[5],
+                "email": r[6],
+                "pre_lab_date": str(r[7]) if r[7] else None,
+                "testosterone_level": r[8]
+            }
+            for r in rows
+        ]
+    except Exception as e:
+        print("GET PATIENTS ERROR:", e)
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/add_patient")
 def add_patient(data: PatientCreate):

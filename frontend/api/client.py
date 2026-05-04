@@ -13,7 +13,7 @@ if not BASE_URL:
     else:
         BASE_URL = "http://127.0.0.1:8000"
 
-BASE_URL = BASE_URL.rstrip("/")
+BASE_URL = BASE_URL.strip().rstrip("/")
 API_URL = BASE_URL
 
 
