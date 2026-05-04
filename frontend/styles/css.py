@@ -102,6 +102,19 @@ input, textarea {
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #B97A4B 0%, #8F5A36 100%);
     border-right: none;
+    display: block !important;
+    visibility: visible !important;
+    min-width: 280px !important;
+    width: 280px !important;
+    transform: translateX(0) !important;
+    left: 0 !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded="false"] {
+    display: block !important;
+    visibility: visible !important;
+    transform: translateX(0) !important;
+    margin-left: 0 !important;
 }
 
 section[data-testid="stSidebar"] * {
