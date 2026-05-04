@@ -66,18 +66,6 @@ div[data-testid="column"] {
     justify-content: center;
 }
 
-/* LOGIN CARD */
-.login-card {
-    width: 100%;
-    max-width: 360px;
-    padding: 32px 28px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.95);
-    border: 1px solid #E8E1D5;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-    backdrop-filter: blur(6px);
-}
-
 /* Titles */
 .login-clinic {
     font-size: 1.2rem;
@@ -90,6 +78,16 @@ div[data-testid="column"] {
     font-size: 12px;
     color: #9A9A9A;
     margin-bottom: 20px;
+}
+
+/* LOGIN FORM CARD */
+div[data-testid="stForm"] {
+    padding: 22px 20px !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,0.72) !important;
+    border: 1px solid #E8E1D5 !important;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.04);
+    backdrop-filter: blur(6px);
 }
 
 /* Inputs */
@@ -146,8 +144,6 @@ div[data-testid="stVerticalBlock"] > div:first-child:empty {
     col1, col2, col3 = st.columns([1, 1.2, 1])
 
     with col2:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-
         st.markdown(f'<div class="login-clinic">{CLINIC_NAME}</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
@@ -162,8 +158,6 @@ div[data-testid="stVerticalBlock"] > div:first-child:empty {
                 st.rerun()
             else:
                 st.error("Invalid credentials")
-
-        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("""
         <div class="footer">
