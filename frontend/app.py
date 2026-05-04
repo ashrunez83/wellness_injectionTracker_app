@@ -30,99 +30,109 @@ init_session_state()
 # -------------------------------
 def login_page():
     st.markdown("""
-    <style>
+<style>
 
-    /* Remove Streamlit junk */
-    header[data-testid="stHeader"],
-    div[data-testid="stToolbar"],
-    div[data-testid="stDecoration"],
-    div[data-testid="stStatusWidget"] {
-        display: none !important;
-    }
+/* Remove Streamlit junk */
+header[data-testid="stHeader"],
+div[data-testid="stToolbar"],
+div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"] {
+    display: none !important;
+}
 
-    /* Remove top spacing */
-    .block-container {
-        padding-top: 2rem !important;
-    }
+/* 🔥 SINGLE SOURCE OF TRUTH FOR SPACING */
+.block-container {
+    padding-top: 0 !important;
+}
 
-    /* Center layout */
-    div[data-testid="column"] {
-        display: flex;
-        justify-content: center;
-    }
+/* Remove hidden wrapper spacing */
+section.main > div {
+    padding-top: 0 !important;
+}
 
-    /* Background */
-    [data-testid="stAppViewContainer"] {
-        background: radial-gradient(
-            circle at 50% 30%,
-            #FFFFFF 0%,
-            #F6F1E8 60%,
-            #EFE7DA 100%
-        );
-    }
+/* Kill phantom top space */
+div[data-testid="stAppViewContainer"] > div:first-child {
+    margin-top: -20px;
+}
 
-    /* LOGIN CARD */
-    .login-card {
-        width: 100%;
-        max-width: 360px;
-        padding: 32px 28px;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.95);
-        border: 1px solid #E8E1D5;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-        backdrop-filter: blur(6px);
-    }
+/* Background */
+[data-testid="stAppViewContainer"] {
+    background: radial-gradient(
+        circle at 50% 30%,
+        #FFFFFF 0%,
+        #F6F1E8 60%,
+        #EFE7DA 100%
+    );
+}
 
-    /* Titles */
-    .login-clinic {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #2E2A26;
-        margin-bottom: 2px;
-    }
+/* Center layout */
+div[data-testid="column"] {
+    display: flex;
+    justify-content: center;
+}
 
-    .login-sub {
-        font-size: 12px;
-        color: #9A9A9A;
-        margin-bottom: 20px;
-    }
+/* LOGIN CARD */
+.login-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 32px 28px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #E8E1D5;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+    backdrop-filter: blur(6px);
+}
 
-    /* Inputs */
-    .stTextInput input {
-        height: 38px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
-        border: 1px solid #E3D8C8 !important;
-        padding: 6px 10px !important;
-    }
+/* Titles */
+.login-clinic {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2E2A26;
+    margin-bottom: 2px;
+}
 
-    /* Button */
-    .stFormSubmitButton > button {
-        background-color: #B97A4B !important;
-        color: white !important;
-        border-radius: 10px !important;
-        width: 120px !important;
-        height: 36px;
-        font-size: 14px;
-        border: none !important;
-    }
+.login-sub {
+    font-size: 12px;
+    color: #9A9A9A;
+    margin-bottom: 20px;
+}
 
-    .stFormSubmitButton > button:hover {
-        background-color: #9C643B !important;
-    }
+/* Inputs */
+.stTextInput input {
+    height: 38px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+    border: 1px solid #E3D8C8 !important;
+    padding: 6px 10px !important;
+}
 
-    /* Footer */
-    .footer {
-        position: fixed;
-        bottom: 20px;
-        right: 30px;
-        font-size: 12px;
-        color: #9A9A9A;
-        text-align: right;
-    }
+/* Button */
+.stFormSubmitButton > button {
+    background-color: #B97A4B !important;
+    color: white !important;
+    border-radius: 10px !important;
+    width: 120px !important;
+    height: 36px;
+    font-size: 14px;
+    border: none !important;
+}
 
-    </style>
-    """, unsafe_allow_html=True)
+.stFormSubmitButton > button:hover {
+    background-color: #9C643B !important;
+}
+
+/* Footer */
+.footer {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    font-size: 12px;
+    color: #9A9A9A;
+    text-align: right;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 1.2, 1])
 
@@ -148,7 +158,7 @@ def login_page():
 
     st.markdown("""
         <div class="footer">
-            <div style="font-weight:500;">Orelia ✨</div>
+            <div style="font-weight:500;">Powered by Orelia ✨</div>
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
@@ -168,5 +178,35 @@ if not st.session_state["logged_in"]:
 from styles.css import GLOBAL_CSS
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
-# Placeholder (your real app continues here)
-st.write("Logged in — app loads here")
+# -------------------------------
+# IMPORT APP PAGES
+# -------------------------------
+from views.dashboard import dashboard_page
+from views.patients import patients_page
+from views.inventory import inventory_page
+
+# -------------------------------
+# SIDEBAR
+# -------------------------------
+with st.sidebar:
+    st.markdown("### Copper Rock")
+    
+    page = st.radio(
+        "Navigation",
+        ["🏠 Dashboard", "👤 Patients", "📦 Inventory"],
+        label_visibility="collapsed"
+    )
+
+    if st.button("🚪 Logout"):
+        st.session_state["logged_in"] = False
+        st.rerun()
+
+# -------------------------------
+# ROUTING
+# -------------------------------
+if page == "🏠 Dashboard":
+    dashboard_page()
+elif page == "👤 Patients":
+    patients_page()
+elif page == "📦 Inventory":
+    inventory_page()
