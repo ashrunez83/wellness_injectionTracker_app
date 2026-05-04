@@ -27,6 +27,11 @@ def root_head():
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASE_URL = DATABASE_URL.strip()
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 engine = None
 
 if DATABASE_URL:
@@ -44,7 +49,16 @@ else:
 # DB HELPER
 # -------------------------------
 def execute_query(query, params=None, fetch=True):
-    conn = psycopg2.connect(DATABASE_URL)
+    if DB_HOST and DB_NAME and DB_USER and DB_PASSWORD:
+        conn = psycopg2.connect(
+            host=DB_HOST.strip(),
+            port=int((DB_PORT or "5432").strip()),
+            dbname=DB_NAME.strip(),
+            user=DB_USER.strip(),
+            password=DB_PASSWORD.strip(),
+        )
+    else:
+        conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
 
     try:
@@ -61,9 +75,21 @@ def execute_query(query, params=None, fetch=True):
 
 
 def database_config_summary():
+    if DB_HOST and DB_NAME and DB_USER and DB_PASSWORD:
+        return {
+            "configured": True,
+            "source": "DB_* env vars",
+            "scheme": "postgresql",
+            "username": DB_USER.strip(),
+            "hostname": DB_HOST.strip(),
+            "port": int((DB_PORT or "5432").strip()),
+            "database": DB_NAME.strip(),
+        }
+
     if not DATABASE_URL:
         return {
             "configured": False,
+            "source": None,
             "scheme": None,
             "username": None,
             "hostname": None,
@@ -74,6 +100,7 @@ def database_config_summary():
     parsed = urlparse(DATABASE_URL.strip())
     return {
         "configured": True,
+        "source": "DATABASE_URL",
         "scheme": parsed.scheme,
         "username": parsed.username,
         "hostname": parsed.hostname,
