@@ -48,17 +48,20 @@ else:
 # -------------------------------
 # DB HELPER
 # -------------------------------
-def execute_query(query, params=None, fetch=True):
+def get_db_connection():
     if DB_HOST and DB_NAME and DB_USER and DB_PASSWORD:
-        conn = psycopg2.connect(
+        return psycopg2.connect(
             host=DB_HOST.strip(),
             port=int((DB_PORT or "5432").strip()),
             dbname=DB_NAME.strip(),
             user=DB_USER.strip(),
             password=DB_PASSWORD.strip(),
         )
-    else:
-        conn = psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL)
+
+
+def execute_query(query, params=None, fetch=True):
+    conn = get_db_connection()
     cur = conn.cursor()
 
     try:
@@ -419,7 +422,7 @@ def add_injection(record: InjectionRecord):
     cur = None
     try:
         print("INJECTION PAYLOAD:", record.dict())  # 
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = get_db_connection()
         cur = conn.cursor()
 
 
@@ -523,7 +526,7 @@ def update_injection(injection_id: str, record: InjectionRecord):
     conn = None
     cur = None
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = get_db_connection()
         cur = conn.cursor()
 
         # -------------------------------
@@ -663,7 +666,7 @@ def delete_injection(injection_id: str):
     conn = None
     cur = None
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = get_db_connection()
         cur = conn.cursor()
 
         # -------------------------------
@@ -877,7 +880,7 @@ def add_payment(data: PaymentModel):
     conn = None
     cur = None
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = get_db_connection()
         cur = conn.cursor()
 
         # -------------------------------
@@ -973,7 +976,7 @@ def update_payment(payment_id: str, data: PaymentModel):
     conn = None
     cur = None
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = get_db_connection()
         cur = conn.cursor()
 
         cur.execute("""
