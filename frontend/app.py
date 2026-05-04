@@ -55,17 +55,6 @@ def init_session_state():
 
 init_session_state()
 
-try:
-    from api.client import api_get, api_post, api_put, api_delete
-    from views.dashboard import dashboard_page
-    from views.patients import patients_page
-    from views.inventory import inventory_page
-    from styles.css import GLOBAL_CSS
-    from utils.helpers import render_page_header
-    IMPORT_SUCCESS = True
-except Exception as e:
-    IMPORT_SUCCESS = False
-    IMPORT_ERROR = str(e)
 
 # -------------------------------
 # LOGIN PAGE
@@ -73,9 +62,11 @@ except Exception as e:
 def login_page():
     st.markdown("""
         <style>
-            /* Remove ALL top spacing */
+            /* -------------------------------
+               BASE LAYOUT
+            -------------------------------- */
             .block-container {
-                padding-top: 1.5rem !important;
+                padding-top: 2rem !important;
             }
 
             header[data-testid="stHeader"] {
@@ -88,53 +79,116 @@ def login_page():
                 display: none !important;
             }
 
-            /* Center column spacing */
+            /* -------------------------------
+               BACKGROUND (soft luxury)
+            -------------------------------- */
+            [data-testid="stAppViewContainer"] {
+                background: radial-gradient(
+                    circle at 50% 30%,
+                    #FFFFFF 0%,
+                    #F6F1E8 60%,
+                    #EFE7DA 100%
+                );
+            }
+
+            /* -------------------------------
+               CENTERING
+            -------------------------------- */
             div[data-testid="column"] {
                 display: flex;
                 justify-content: center;
             }
 
+            /* -------------------------------
+               LOGIN CARD
+            -------------------------------- */
             .login-card {
                 width: 100%;
                 max-width: 380px;
-                padding: 36px 32px;
-                border-radius: 18px;
-                background: #FFFFFF;
+                padding: 40px 36px;
+                border-radius: 20px;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(8px);
                 border: 1px solid #E8E1D5;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.04);
                 text-align: center;
             }
 
+            /* -------------------------------
+               TYPOGRAPHY
+            -------------------------------- */
+            .login-brand {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.8rem;
+                font-weight: 600;
+                margin-bottom: 6px;
+                color: #2E2A26;
+            }
+
             .login-clinic {
-                font-size: 1.1rem;
+                font-size: 1rem;
                 font-weight: 600;
                 color: #2E2A26;
-                margin-bottom: 4px;
             }
 
             .login-sub {
                 font-size: 12px;
-                color: #9A9A9A;
-                margin-bottom: 20px;
+                color: #8A8178;
+                margin-bottom: 22px;
             }
 
+            /* -------------------------------
+               FORM
+            -------------------------------- */
+            div[data-testid="stForm"] {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+
+            .stTextInput input {
+                border-radius: 10px !important;
+                border: 1px solid #E3D8C8 !important;
+                padding: 10px !important;
+            }
+
+            /* -------------------------------
+               BUTTON
+            -------------------------------- */
+            .stFormSubmitButton > button {
+                background-color: #B97A4B !important;
+                color: white !important;
+                border-radius: 10px !important;
+                padding: 0.5rem 1.2rem !important;
+                border: none !important;
+                width: 100%;
+                margin-top: 8px;
+            }
+
+            .stFormSubmitButton > button:hover {
+                background-color: #9C643B !important;
+            }
+
+            /* -------------------------------
+               FOOTER
+            -------------------------------- */
             .footer {
                 position: fixed;
-                bottom: 20px;
-                right: 30px;
-                font-size: 12px;
-                color: #9A9A9A;
+                bottom: 24px;
+                right: 32px;
+                font-size: 11px;
+                color: #8A8178;
                 text-align: right;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    # Clean centered layout
+    # Center layout
     col1, col2, col3 = st.columns([1, 1.2, 1])
 
     with col2:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
+        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-clinic">Copper Rock Clinic</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
@@ -159,6 +213,8 @@ def login_page():
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
+
+
 #---------------------
 # MAIN APP FLOW
 # -------------------------------
@@ -169,6 +225,21 @@ if not st.session_state["logged_in"]:
     login_page()
     st.stop()
 
+# apply global styles 
+st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
+
+#Imports
+try:
+    from api.client import api_get, api_post, api_put, api_delete
+    from views.dashboard import dashboard_page
+    from views.patients import patients_page
+    from views.inventory import inventory_page
+    from styles.css import GLOBAL_CSS
+    from utils.helpers import render_page_header
+    IMPORT_SUCCESS = True
+except Exception as e:
+    IMPORT_SUCCESS = False
+    IMPORT_ERROR = str(e)
 
 # -------------------------------
 # SIDEBAR (ONLY AFTER LOGIN)
