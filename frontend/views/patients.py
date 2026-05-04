@@ -1,9 +1,7 @@
 import streamlit as st
 import datetime
-import pandas as pd
-import requests
 
-from api.client import API_URL, api_get, api_post, api_put, api_delete
+from api.client import api_get, api_post, api_put
 from utils.helpers import (
     render_data_section,
     render_add_payment_form,
@@ -299,7 +297,7 @@ def add_injection_page():
 
         response, result = api_post("/add_injection", payload)
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.success("Injection saved ✅")
             st.rerun()
         else:
@@ -439,7 +437,7 @@ def selected_patient_record():
 
         response, result = api_put(f"/update_patient/{patient_uuid}", payload)
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.success("Saved ✅")
             st.rerun()
         else:

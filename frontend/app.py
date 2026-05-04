@@ -193,12 +193,22 @@ from views.inventory import inventory_page
 # -------------------------------
 with st.sidebar:
     st.markdown("### Copper Rock")
-    
+
+    nav_options = ["🏠 Dashboard", "👤 Patients", "📦 Inventory"]
+    current_page = st.session_state.get("sidebar_page", nav_options[0])
+    if current_page not in nav_options:
+        current_page = nav_options[0]
+    if st.session_state.get("nav_radio") != current_page:
+        st.session_state["nav_radio"] = current_page
+
     page = st.radio(
         "Navigation",
-        ["🏠 Dashboard", "👤 Patients", "📦 Inventory"],
-        label_visibility="collapsed"
+        nav_options,
+        index=nav_options.index(current_page),
+        label_visibility="collapsed",
+        key="nav_radio"
     )
+    st.session_state["sidebar_page"] = page
 
     if st.button("🚪 Logout"):
         st.session_state["logged_in"] = False

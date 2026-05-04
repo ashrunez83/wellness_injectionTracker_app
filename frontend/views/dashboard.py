@@ -196,9 +196,10 @@ def dashboard_page():
                 days_until = (due_date - today).days
 
                 label = "🔴 Overdue" if days_until < 0 else f"🟡 {days_until} days"
+                payment_type = p.get("payment_type", "Payment")
 
                 if st.button(
-                    f"{name} • {lab.get('lab_type', 'Lab')} • {label}",
+                    f"{name} • {payment_type} • {label}",
                     key=f"payment_{patient_uuid}_{i}"  # ✅ UNIQUE KEY
                 ):
                     st.session_state["selected_patient"] = patient_uuid

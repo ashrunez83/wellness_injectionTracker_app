@@ -190,28 +190,33 @@ def get_patients():
 
 @app.post("/add_patient")
 def add_patient(data: PatientCreate):
-    execute_query("""
-        INSERT INTO patients (
-            first_name,
-            last_name,
-            date_of_birth,
-            phone,
-            email,
-            pre_lab_date,
-            testosterone_level
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (
-        data.first_name,
-        data.last_name,
-        data.date_of_birth,
-        data.phone,
-        data.email,
-        data.pre_lab_date,
-        data.testosterone_level
-    ), fetch=False)
+    try:
+        execute_query("""
+            INSERT INTO patients (
+                first_name,
+                last_name,
+                date_of_birth,
+                phone,
+                email,
+                pre_lab_date,
+                testosterone_level
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            data.first_name,
+            data.last_name,
+            data.date_of_birth,
+            data.phone,
+            data.email,
+            data.pre_lab_date,
+            data.testosterone_level
+        ), fetch=False)
 
-    return {"message": "Patient added successfully"}
+        return {"message": "Patient added successfully"}
+    except Exception as e:
+        print("ADD PATIENT ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
 @app.get("/search_patients")
 def search_patients(first_name: str = "", last_name: str = ""):
     first_name = first_name.strip()
@@ -275,18 +280,17 @@ def get_patient_detail(patient_uuid: str):
 
 @app.post("/add_body_scan")
 def add_body_scan(record: BodyScanRecord):
-    
-    patient_rows = execute_query("""
-        SELECT patient_id
-        FROM patients
-        WHERE patient_uuid = %s
-    """, (record.patient_uuid,))
-
-    if not patient_rows:
-        return {"error": "Patient not found."}
-    patient_id = patient_rows[0][0]
-
     try:
+        patient_rows = execute_query("""
+            SELECT patient_id
+            FROM patients
+            WHERE patient_uuid = %s
+        """, (record.patient_uuid,))
+
+        if not patient_rows:
+            return JSONResponse(status_code=404, content={"error": "Patient not found."})
+        patient_id = patient_rows[0][0]
+
         execute_query("""
             INSERT INTO body_scans (
                 patient_id,
@@ -307,7 +311,8 @@ def add_body_scan(record: BodyScanRecord):
         return {"message": "Body scan added"}
     
     except Exception as e:
-        return {"error": str(e)}
+        print("ADD BODY SCAN ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
     
 @app.get("/body_scans")
 def get_body_scans():
@@ -332,6 +337,8 @@ def get_body_scans():
 @app.post("/add_injection")
 def add_injection(record: InjectionRecord):
 
+    conn = None
+    cur = None
     try:
         print("INJECTION PAYLOAD:", record.dict())  # 
         conn = psycopg2.connect(DATABASE_URL)
@@ -421,17 +428,22 @@ def add_injection(record: InjectionRecord):
         }
 
     except Exception as e:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         print("❌ ERROR:", e)
         print("❌ INJECTION ERROR:", e)   # ✅ ADD THIS
-        return {"error": str(e)}
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.put("/update_injection/{injection_id}")
 def update_injection(injection_id: str, record: InjectionRecord):
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
@@ -557,16 +569,21 @@ def update_injection(injection_id: str, record: InjectionRecord):
         return {"message": "Injection updated successfully"}
 
     except Exception as e:
-        conn.rollback()
-        return {"error": str(e)}
+        if conn:
+            conn.rollback()
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.delete("/delete_injection/{injection_id}")
 def delete_injection(injection_id: str):
 
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
@@ -652,12 +669,15 @@ def delete_injection(injection_id: str):
         return {"message": "Injection deleted successfully"}
 
     except Exception as e:
-        conn.rollback()
-        return {"error": str(e)}
+        if conn:
+            conn.rollback()
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.post("/add_lab")
 def add_lab(record: LabRecord):
@@ -672,7 +692,7 @@ def add_lab(record: LabRecord):
         """, (str(record.patient_uuid),))
 
         if not patient_rows:
-            return {"error": "Patient not found."}
+            return JSONResponse(status_code=404, content={"error": "Patient not found."})
 
         patient_id = patient_rows[0][0]
 
@@ -705,64 +725,70 @@ def add_lab(record: LabRecord):
 
     except Exception as e:
         print("❌ LAB ERROR:", e)
-        return {"error": str(e)}
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 
 
 
 @app.put("/update_lab/{lab_id}")
 def update_lab(lab_id: str, record: LabRecord):
+    try:
+        execute_query("""
+            UPDATE labs
+            SET
+                lab_type=%s,
+                ordered_date=%s,
+                completed_date=%s,
+                results_status=%s,
+                next_due_date=%s,
+                notes=%s
+            WHERE lab_id=%s
+        """, (
+            record.lab_type,
+            record.ordered_date,
+            record.completed_date,
+            record.results_status,
+            record.next_due_date,
+            record.notes,
+            lab_id
+        ), fetch=False)
 
-    execute_query("""
-        UPDATE labs
-        SET
-            lab_type=%s,
-            ordered_date=%s,
-            completed_date=%s,
-            results_status=%s,
-            next_due_date=%s,
-            notes=%s
-        WHERE lab_id=%s
-    """, (
-        record.lab_type,
-        record.ordered_date,
-        record.completed_date,
-        record.results_status,
-        record.next_due_date,
-        record.notes,
-        lab_id
-    ), fetch=False)
-
-    return {"message": "Lab updated"}
+        return {"message": "Lab updated"}
+    except Exception as e:
+        print("UPDATE LAB ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 # -------------------------------
 # PATIENTS
 # -------------------------------
 @app.put("/update_patient/{patient_uuid}")
 def update_patient(patient_uuid: str, data: PatientUpdate):
+    try:
+        execute_query("""
+            UPDATE patients
+            SET first_name=%s,
+                last_name=%s,
+                date_of_birth=%s,
+                phone=%s,
+                email=%s,
+                pre_lab_date=%s,
+                testosterone_level=%s
+            WHERE patient_uuid=%s
+        """, (
+            data.first_name,
+            data.last_name,
+            data.date_of_birth,
+            data.phone,
+            data.email,
+            data.pre_lab_date,
+            data.testosterone_level,
+            patient_uuid
+        ), fetch=False)
 
-    execute_query("""
-        UPDATE patients
-        SET first_name=%s,
-            last_name=%s,
-            date_of_birth=%s,
-            phone=%s,
-            email=%s,
-            pre_lab_date=%s,
-            testosterone_level=%s
-        WHERE patient_uuid=%s
-    """, (
-        data.first_name,
-        data.last_name,
-        data.date_of_birth,
-        data.phone,
-        data.email,
-        data.pre_lab_date,
-        data.testosterone_level,
-        patient_uuid
-    ), fetch=False)
-
-    return {"message": "Patient updated"}
+        return {"message": "Patient updated"}
+    except Exception as e:
+        print("UPDATE PATIENT ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 # -------------------------------
 # PAYMENTS (UPDATED)
@@ -770,6 +796,8 @@ def update_patient(patient_uuid: str, data: PatientUpdate):
 @app.post("/add_payment")
 def add_payment(data: PaymentModel):
 
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
@@ -818,12 +846,15 @@ def add_payment(data: PaymentModel):
         return {"message": "Payment added"}
 
     except Exception as e:
-        conn.rollback()
-        return {"error": str(e)}
+        if conn:
+            conn.rollback()
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.get("/payments")
 def get_payments():
@@ -861,6 +892,8 @@ def get_payments():
 @app.put("/update_payment/{payment_id}")
 def update_payment(payment_id: str, data: PaymentModel):
 
+    conn = None
+    cur = None
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
@@ -895,40 +928,47 @@ def update_payment(payment_id: str, data: PaymentModel):
         return {"message": "Payment updated"}
 
     except Exception as e:
-        conn.rollback()
-        return {"error": str(e)}
+        if conn:
+            conn.rollback()
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 # -------------------------------
 # INVENTORY FIX (REMOVED DUPLICATE ENDPOINT)
 # -------------------------------
 @app.put("/update_inventory/{inventory_id}")
 def update_inventory(inventory_id: str, item: dict):
-    execute_query("""
-        UPDATE inventory
-        SET item_name=%s,
-            lot_number=%s,
-            quantity=%s,
-            unit=%s,
-            reorder_level=%s,
-            ml_per_vial=%s,
-            mg_per_ml=%s
-        WHERE inventory_id=%s
-    """, (
-        item["item_name"],
-        item["lot_number"],
-        item["quantity"],
-        item["unit"],
-        item["reorder_level"],
-        item.get("ml_per_vial"),
-        item.get("mg_per_ml"),
-        inventory_id
-    ), fetch=False)
+    try:
+        execute_query("""
+            UPDATE inventory
+            SET item_name=%s,
+                lot_number=%s,
+                quantity=%s,
+                unit=%s,
+                reorder_level=%s,
+                ml_per_vial=%s,
+                mg_per_ml=%s
+            WHERE inventory_id=%s
+        """, (
+            item["item_name"],
+            item["lot_number"],
+            item["quantity"],
+            item["unit"],
+            item["reorder_level"],
+            item.get("ml_per_vial"),
+            item.get("mg_per_ml"),
+            inventory_id
+        ), fetch=False)
 
-    return {"message": "Inventory updated"}
+        return {"message": "Inventory updated"}
+    except Exception as e:
+        print("UPDATE INVENTORY ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 @app.get("/injection_history")
 def get_injection_history():
@@ -1064,45 +1104,49 @@ def get_treatments():
     ]
 @app.post("/add_treatment")
 def add_treatment(record: TreatmentRecord):
-    patient_rows = execute_query("""
-        SELECT patient_id
-        FROM patients
-        WHERE patient_uuid = %s
-    """, (record.patient_uuid,))
+    try:
+        patient_rows = execute_query("""
+            SELECT patient_id
+            FROM patients
+            WHERE patient_uuid = %s
+        """, (record.patient_uuid,))
 
-    if not patient_rows:
-        return {"error": "Patient not found."}
+        if not patient_rows:
+            return JSONResponse(status_code=404, content={"error": "Patient not found."})
 
-    patient_id = patient_rows[0][0]
+        patient_id = patient_rows[0][0]
 
-    execute_query("""
-        INSERT INTO treatments (
+        execute_query("""
+            INSERT INTO treatments (
+                patient_id,
+                patient_uuid,
+                treatment_name,
+                dosage,
+                unit,
+                frequency,
+                start_date,
+                end_date,
+                status,
+                notes
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
             patient_id,
-            patient_uuid,
-            treatment_name,
-            dosage,
-            unit,
-            frequency,
-            start_date,
-            end_date,
-            status,
-            notes
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        patient_id,
-        record.patient_uuid,
-        record.treatment_name,
-        record.dosage,
-        record.unit,
-        record.frequency,
-        record.start_date,
-        record.end_date,
-        record.status,
-        record.notes
-    ), fetch=False)
+            record.patient_uuid,
+            record.treatment_name,
+            record.dosage,
+            record.unit,
+            record.frequency,
+            record.start_date,
+            record.end_date,
+            record.status,
+            record.notes
+        ), fetch=False)
 
-    return {"message": "Treatment added successfully"}
+        return {"message": "Treatment added successfully"}
+    except Exception as e:
+        print("ADD TREATMENT ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 # -------------------------------
 # INVENTORY
@@ -1176,8 +1220,12 @@ def add_inventory(item: InventoryItem):
 
 @app.delete("/delete_inventory/{inventory_id}")
 def delete_inventory(inventory_id: str):
-    execute_query("""
-        DELETE FROM inventory WHERE inventory_id=%s
-    """, (inventory_id,), fetch=False)
+    try:
+        execute_query("""
+            DELETE FROM inventory WHERE inventory_id=%s
+        """, (inventory_id,), fetch=False)
 
-    return {"message": "Deleted"}
+        return {"message": "Deleted"}
+    except Exception as e:
+        print("DELETE INVENTORY ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})

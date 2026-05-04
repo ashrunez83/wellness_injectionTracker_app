@@ -140,13 +140,12 @@ def render_payments_section(payments, patient_uuid, patient_name):
                 payload
             )
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
                 st.session_state["payment_success"] = "Payment updated ✅"
                 st.session_state["editing_payment"] = None
                 st.rerun()
             else:
                 st.error(result.get("error", "Update failed"))
-                st.write("DEBUG:", result)
 
     # -------------------------------
     # ADD PAYMENT BUTTON
@@ -244,7 +243,7 @@ def render_injection_history_section(injections, schedule, patient_uuid, patient
             if st.button("Confirm Delete", key="confirm_delete_injection"):
                 response, result = api_delete(f"/delete_injection/{inj_id}")
 
-                if response and response.status_code == 200:
+                if response and response.status_code == 200 and "error" not in result:
                     st.success("Injection deleted ✅")
                     st.session_state["delete_injection_id"] = None
                     st.session_state["refresh_injections"] = True  # ✅ ADD THIS
@@ -315,7 +314,7 @@ def render_injection_history_section(injections, schedule, patient_uuid, patient
                 payload
             )
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
 
                 st.session_state["injection_success"] = "Injection updated ✅"
 
@@ -418,7 +417,7 @@ def render_add_injection_form(patient_uuid, patient_name):
 
         response, result = api_post("/add_injection", payload)
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
 
             st.session_state["injection_success"] = "Injection saved ✅"
 
@@ -537,7 +536,7 @@ def render_labs_section(labs, reminders, patient_uuid):
                 payload
             )
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
                 st.success("Lab updated ✅")
                 st.session_state["editing_lab"] = None
                 st.rerun()
@@ -602,13 +601,9 @@ def render_add_lab_form(patient_uuid):
             "notes": notes
         }
 
-        print("🚀 LAB PAYLOAD:", payload)
-
         response, result = api_post("/add_lab", payload)
 
-        print("📥 RESPONSE:", response, result)
-
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.success("Lab added ✅")
             st.session_state["show_lab_form"] = False
             st.rerun()
@@ -629,12 +624,20 @@ def render_add_treatment_form(patient_uuid):
         submitted = st.form_submit_button("Save")
 
     if submitted:
-        api_post("/add_treatment", {
+        if not name.strip():
+            st.error("Treatment name is required")
+            return
+
+        response, result = api_post("/add_treatment", {
             "patient_uuid": patient_uuid,
-            "treatment_name": name
+            "treatment_name": name.strip()
         })
-        st.success("Treatment added ✅")
-        st.rerun()
+
+        if response and response.status_code == 200 and "error" not in result:
+            st.success("Treatment added ✅")
+            st.rerun()
+        else:
+            st.error(result.get("error", "Failed to add treatment"))
 
 # -------------------------------
 # PAYMENTS FORM
@@ -699,7 +702,7 @@ def render_add_payment_form(patient_uuid, patient_name):
 
         response, result = api_post("/add_payment", payload)
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.session_state["payment_success"] = f"Payment added for {patient_name} ✅"
             st.session_state["show_payment_form"] = False
             st.rerun()
@@ -786,7 +789,7 @@ def render_scans_section(scans, patient_uuid):
 
             response, result = api_post("/add_body_scan", payload)
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
                 st.success("Scan added ✅")
                 st.session_state["show_scan_form"] = False
                 st.rerun()

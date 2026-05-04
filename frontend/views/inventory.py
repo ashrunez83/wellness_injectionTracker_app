@@ -212,7 +212,7 @@ def render_edit_inventory_form(item):
             payload
         )
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.session_state["inventory_success"] = "Inventory updated ✅"
             clear_inventory_action()
             st.rerun()
@@ -281,7 +281,7 @@ def render_restock_form(item):
             payload
         )
 
-        if response and response.status_code == 200:
+        if response and response.status_code == 200 and "error" not in result:
             st.session_state["inventory_success"] = f"Added {amount:g} vial(s) ✅"
             clear_inventory_action()
             st.rerun()
@@ -319,7 +319,7 @@ def render_delete_inventory(item):
                 f"/delete_inventory/{item['inventory_id']}"
             )
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
                 st.session_state["inventory_success"] = "Item deleted 🗑️"
                 clear_inventory_action()
                 st.rerun()
