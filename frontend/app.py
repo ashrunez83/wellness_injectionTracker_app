@@ -73,38 +73,43 @@ except Exception as e:
 def login_page():
     st.markdown("""
         <style>
+            /* Remove ALL top spacing */
             .block-container {
-                padding-top: 3rem !important;
-            }
-            
-            [data-testid="stAppViewContainer"] {
-                background: linear-gradient(180deg, #F7F3E8 0%, #EFE7DA 100%);
+                padding-top: 1.5rem !important;
             }
 
             header[data-testid="stHeader"] {
                 display: none;
             }
 
+            div[data-testid="stToolbar"],
+            div[data-testid="stDecoration"],
+            div[data-testid="stStatusWidget"] {
+                display: none !important;
+            }
+
+            /* Center column spacing */
+            div[data-testid="column"] {
+                display: flex;
+                justify-content: center;
+            }
+
             .login-card {
+                width: 100%;
+                max-width: 380px;
                 padding: 36px 32px;
                 border-radius: 18px;
                 background: #FFFFFF;
                 border: 1px solid #E8E1D5;
-                box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.06);
                 text-align: center;
             }
 
-            .login-brand {
-                font-family: 'Playfair Display', serif;
-                font-size: 2rem;
-                margin-bottom: 4px;
-                color: #2E2A26;
-            }
-
             .login-clinic {
-                font-size: 1rem;
+                font-size: 1.1rem;
                 font-weight: 600;
                 color: #2E2A26;
+                margin-bottom: 4px;
             }
 
             .login-sub {
@@ -113,16 +118,6 @@ def login_page():
                 margin-bottom: 20px;
             }
 
-            .stTextInput input {
-                text-align: left;
-            }
-
-            /* constrain form width */
-            div[data-testid="stForm"] {
-                width: 100% !important;
-            }
-
-            /* footer */
             .footer {
                 position: fixed;
                 bottom: 20px;
@@ -134,11 +129,12 @@ def login_page():
         </style>
     """, unsafe_allow_html=True)
 
-    # Center using columns (THIS is the correct way in Streamlit)
-    col1, col2, col3 = st.columns([1.2, 1, 1.2])
+    # Clean centered layout
+    col1, col2, col3 = st.columns([1, 1.2, 1])
 
     with col2:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
+
         st.markdown('<div class="login-clinic">Copper Rock Clinic</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
@@ -159,8 +155,7 @@ def login_page():
     # Footer
     st.markdown("""
         <div class="footer">
-            <div style="font-weight:500;"> Powered By 
-                Orelia ✨</div>
+            <div style="font-weight:500;">Orelia ✨</div>
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
