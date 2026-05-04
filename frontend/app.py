@@ -9,6 +9,7 @@ st.set_page_config(
     page_title=f"{CLINIC_NAME} | Orelia",
     page_icon="✨",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 # -------------------------------
@@ -195,16 +196,19 @@ with st.sidebar:
     st.markdown("### Copper Rock")
 
     nav_options = ["🏠 Dashboard", "👤 Patients", "📦 Inventory"]
-    current_page = st.session_state.get("sidebar_page", nav_options[0])
-    if current_page not in nav_options:
-        current_page = nav_options[0]
-    if st.session_state.get("nav_radio") != current_page:
-        st.session_state["nav_radio"] = current_page
+
+    pending_page = st.session_state.pop("pending_page", None)
+    if pending_page in nav_options:
+        st.session_state["nav_radio"] = pending_page
+    elif st.session_state.get("nav_radio") not in nav_options:
+        st.session_state["nav_radio"] = st.session_state.get("sidebar_page", nav_options[0])
+
+    if st.session_state["nav_radio"] not in nav_options:
+        st.session_state["nav_radio"] = nav_options[0]
 
     page = st.radio(
         "Navigation",
         nav_options,
-        index=nav_options.index(current_page),
         label_visibility="collapsed",
         key="nav_radio"
     )

@@ -99,7 +99,7 @@ def dashboard_page():
         """, unsafe_allow_html=True)
 
         if st.button("View Patients", key="dashboard_patients"):
-            st.session_state["sidebar_page"] = "👤 Patients"
+            st.session_state["pending_page"] = "👤 Patients"
             st.rerun()
 
     # LABS
@@ -178,7 +178,7 @@ def dashboard_page():
         
                 
                     st.session_state["selected_patient"] = patient_uuid
-                    st.session_state["sidebar_page"] = "👤 Patients"
+                    st.session_state["pending_page"] = "👤 Patients"
                     st.rerun()
 
     # PAYMENT LIST
@@ -203,5 +203,5 @@ def dashboard_page():
                     key=f"payment_{patient_uuid}_{i}"  # ✅ UNIQUE KEY
                 ):
                     st.session_state["selected_patient"] = patient_uuid
-                    st.session_state["sidebar_page"] = "👤 Patients"
+                    st.session_state["pending_page"] = "👤 Patients"
                     st.rerun()
