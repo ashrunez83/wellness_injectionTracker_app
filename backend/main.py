@@ -444,7 +444,8 @@ def add_injection(record: InjectionRecord):
         if not ml_per_vial:
             return {"error": "Missing mL per vial for this inventory item."}
 
-        actual_deduction = float(record.dose) / float(ml_per_vial)
+        dose_ml = float(record.dose) / 100 if record.unit == "units" else float(record.dose)
+        actual_deduction = dose_ml / float(ml_per_vial)
 
         print(f"💉 Deducting {actual_deduction:.4f} vial(s) from {record.drug_name} (Lot: {record.lot_number})")
 
@@ -533,7 +534,7 @@ def update_injection(injection_id: str, record: InjectionRecord):
         # 1. GET ORIGINAL INJECTION
         # -------------------------------
         cur.execute("""
-            SELECT drug_name, lot_number, dose
+            SELECT drug_name, lot_number, dose, unit
             FROM injection_history
             WHERE injection_id = %s
         """, (injection_id,))
@@ -543,7 +544,7 @@ def update_injection(injection_id: str, record: InjectionRecord):
         if not original:
             return {"error": "Injection not found"}
 
-        old_drug, old_lot, old_dose = original
+        old_drug, old_lot, old_dose, old_unit = original
 
         # -------------------------------
         # 2. RESTORE OLD INVENTORY (FIXED)
@@ -561,7 +562,8 @@ def update_injection(injection_id: str, record: InjectionRecord):
             return {"error": "Original inventory item not found"}
 
         old_ml_per_vial = old_inventory[0] or old_inventory[1]
-        old_restore = float(old_dose) / float(old_ml_per_vial)
+        old_dose_ml = float(old_dose) / 100 if old_unit == "units" else float(old_dose)
+        old_restore = old_dose_ml / float(old_ml_per_vial)
 
         print(f"🔁 Restoring {old_restore:.4f} vial(s) back to {old_drug} (Lot: {old_lot})")
 
@@ -594,7 +596,8 @@ def update_injection(injection_id: str, record: InjectionRecord):
             conn.rollback()
             return {"error": "Missing mL per vial for updated medication"}
 
-        new_deduction = float(record.dose) / float(new_ml_per_vial)
+        new_dose_ml = float(record.dose) / 100 if record.unit == "units" else float(record.dose)
+        new_deduction = new_dose_ml / float(new_ml_per_vial)
 
         print(f"💉 Deducting {new_deduction:.4f} vial(s) from {record.drug_name} (Lot: {record.lot_number})")
 
@@ -673,7 +676,7 @@ def delete_injection(injection_id: str):
         # 1. GET INJECTION
         # -------------------------------
         cur.execute("""
-            SELECT drug_name, lot_number, dose
+            SELECT drug_name, lot_number, dose, unit
             FROM injection_history
             WHERE injection_id = %s
         """, (injection_id,))
@@ -683,7 +686,7 @@ def delete_injection(injection_id: str):
         if not row:
             return {"error": "Injection not found"}
 
-        drug_name, lot_number, dose = row
+        drug_name, lot_number, dose, unit = row
         dose = float(dose)
 
         # -------------------------------
@@ -706,7 +709,8 @@ def delete_injection(injection_id: str):
             conn.rollback()
             return {"error": "Missing mL per vial for inventory item"}
 
-        restore_amount = dose / float(ml_per_vial)
+        dose_ml = dose / 100 if unit == "units" else dose
+        restore_amount = dose_ml / float(ml_per_vial)
 
         print(f"🗑️ Restoring {restore_amount:.4f} vial(s) to {drug_name} (Lot: {lot_number}) from deleted injection")
         cur.execute("""

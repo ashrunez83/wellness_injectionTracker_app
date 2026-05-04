@@ -209,6 +209,7 @@ def add_injection_page():
     available_qty = float(selected_med.get("quantity", 0))
     ml_per_vial = selected_med.get("ml_per_vial") or 1
     mg_per_ml = selected_med.get("mg_per_ml") or 0
+    dose_unit_key = f"injection_unit_{patient_uuid}_{lot_number}"
 
     # -------------------------------
     # DISPLAY CARD
@@ -236,8 +237,27 @@ def add_injection_page():
         col1, col2 = st.columns(2)
 
         with col1:
-            unit = st.selectbox("Dose Unit", ["mL", "units"])
-            dose = st.number_input("Dose", min_value=0.0, step=0.1)
+            unit = st.selectbox("Dose Unit", ["mL", "units"], key=dose_unit_key)
+            if unit == "units":
+                dose = st.number_input(
+                    "Dose (units)",
+                    min_value=0.0,
+                    step=1.0,
+                    value=25.0,
+                    format="%.2f",
+                    key=f"injection_dose_units_{patient_uuid}_{lot_number}"
+                )
+                dose_ml = dose / 100
+            else:
+                dose = st.number_input(
+                    "Dose (mL)",
+                    min_value=0.0,
+                    step=0.01,
+                    value=0.25,
+                    format="%.2f",
+                    key=f"injection_dose_ml_{patient_uuid}_{lot_number}"
+                )
+                dose_ml = dose
             injection_date = st.date_input("Injection Date")
 
         with col2:
@@ -249,7 +269,7 @@ def add_injection_page():
     # LIVE PREVIEW
     # -------------------------------
     if dose > 0 and ml_per_vial:
-        vial_usage = dose / ml_per_vial
+        vial_usage = dose_ml / ml_per_vial
         remaining = available_qty - vial_usage
 
         st.markdown(f"""
@@ -261,6 +281,7 @@ def add_injection_page():
             margin-top:8px;
         ">
         <strong>After Injection:</strong><br>
+        Dose: {dose:g} {unit} ({dose_ml:.2f} mL)<br>
         Used: {vial_usage:.3f} vial(s)<br>
         Remaining: <span style="color:#B97A4B;font-weight:700;">
             {max(remaining, 0):.3f} vials
