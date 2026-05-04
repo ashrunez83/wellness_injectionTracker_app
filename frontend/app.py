@@ -1,4 +1,5 @@
 import streamlit as st
+from styles.css import GLOBAL_CSS
 
 # -------------------------------
 # SAFE IMPORTS (PREVENT CRASH)
@@ -14,29 +15,6 @@ st.set_page_config(
     page_icon="✨",
     layout="wide",
 )
-
-st.markdown("""
-<style>
-    body {
-        background-color: #FAFAFA;
-    }
-
-    h1, h2, h3 {
-        font-family: 'Helvetica Neue', sans-serif;
-        letter-spacing: -0.4px;
-    }
-
-    .stButton>button {
-        border-radius: 12px;
-        padding: 0.5rem 1.2rem;
-        border: 1px solid #E5E5E5;
-    }
-
-    .stTextInput>div>div>input {
-        border-radius: 10px;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # -------------------------------
 # SESSION STATE DEFAULTS
@@ -104,7 +82,6 @@ try:
     from views.dashboard import dashboard_page
     from views.patients import patients_page
     from views.inventory import inventory_page
-    from styles.css import GLOBAL_CSS
     from utils.helpers import render_page_header
     IMPORT_SUCCESS = True
 except Exception as e:
