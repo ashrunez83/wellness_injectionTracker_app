@@ -62,158 +62,92 @@ init_session_state()
 def login_page():
     st.markdown("""
         <style>
-            /* -------------------------------
-               BASE LAYOUT
-            -------------------------------- */
+            /* Kill ALL spacing */
             .block-container {
-                padding-top: 2rem !important;
+                padding: 0rem !important;
             }
 
-            header[data-testid="stHeader"] {
-                display: none;
-            }
-
+            header[data-testid="stHeader"],
             div[data-testid="stToolbar"],
             div[data-testid="stDecoration"],
             div[data-testid="stStatusWidget"] {
                 display: none !important;
             }
 
-            /* -------------------------------
-               BACKGROUND (soft luxury)
-            -------------------------------- */
-            [data-testid="stAppViewContainer"] {
-                background: radial-gradient(
-                    circle at 50% 30%,
-                    #FFFFFF 0%,
-                    #F6F1E8 60%,
-                    #EFE7DA 100%
-                );
-            }
-
-            /* -------------------------------
-               CENTERING
-            -------------------------------- */
-            div[data-testid="column"] {
+            /* Full page center */
+            .center-wrapper {
                 display: flex;
                 justify-content: center;
+                align-items: center;
+                height: 100vh;
             }
 
-            /* -------------------------------
-               LOGIN CARD
-            -------------------------------- */
             .login-card {
-                width: 100%;
-                max-width: 380px;
-                padding: 40px 36px;
-                border-radius: 20px;
-                background: rgba(255,255,255,0.85);
-                backdrop-filter: blur(8px);
+                width: 360px;
+                padding: 36px 32px;
+                border-radius: 18px;
+                background: #FFFFFF;
                 border: 1px solid #E8E1D5;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.06);
                 text-align: center;
             }
 
-            /* -------------------------------
-               TYPOGRAPHY
-            -------------------------------- */
-            .login-brand {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.8rem;
+            .login-title {
+                font-size: 1.2rem;
                 font-weight: 600;
-                margin-bottom: 6px;
-                color: #2E2A26;
-            }
-
-            .login-clinic {
-                font-size: 1rem;
-                font-weight: 600;
-                color: #2E2A26;
+                margin-bottom: 4px;
             }
 
             .login-sub {
                 font-size: 12px;
-                color: #8A8178;
-                margin-bottom: 22px;
+                color: #9A9A9A;
+                margin-bottom: 20px;
             }
 
-            /* -------------------------------
-               FORM
-            -------------------------------- */
             div[data-testid="stForm"] {
-                max-width: 300px;
+                max-width: 280px;
                 margin: 0 auto;
             }
 
-            .stTextInput input {
-                border-radius: 10px !important;
-                border: 1px solid #E3D8C8 !important;
-                padding: 10px !important;
-            }
-
-            /* -------------------------------
-               BUTTON
-            -------------------------------- */
-            .stFormSubmitButton > button {
-                background-color: #B97A4B !important;
-                color: white !important;
-                border-radius: 10px !important;
-                padding: 0.5rem 1.2rem !important;
-                border: none !important;
-                width: 100%;
-                margin-top: 8px;
-            }
-
-            .stFormSubmitButton > button:hover {
-                background-color: #9C643B !important;
-            }
-
-            /* -------------------------------
-               FOOTER
-            -------------------------------- */
             .footer {
                 position: fixed;
-                bottom: 24px;
-                right: 32px;
-                font-size: 11px;
-                color: #8A8178;
+                bottom: 20px;
+                right: 30px;
+                font-size: 12px;
+                color: #9A9A9A;
                 text-align: right;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    # Center layout
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    st.markdown('<div class="center-wrapper">', unsafe_allow_html=True)
 
-    with col2:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    st.markdown('<div class="login-card">', unsafe_allow_html=True)
 
-        st.markdown('<div class="login-brand">Orelia ✨</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-clinic">Copper Rock Clinic</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-title">Copper Rock Clinic</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
 
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submitted = st.form_submit_button("Sign In")
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Sign In")
 
-        if submitted:
-            if username == "admin" and password == "admin123":
-                st.session_state["logged_in"] = True
-                st.rerun()
-            else:
-                st.error("Invalid credentials")
+    if submitted:
+        if username == "admin" and password == "admin123":
+            st.session_state["logged_in"] = True
+            st.rerun()
+        else:
+            st.error("Invalid credentials")
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Footer
     st.markdown("""
         <div class="footer">
             <div style="font-weight:500;">Orelia ✨</div>
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
-
 
 #---------------------
 # MAIN APP FLOW
@@ -228,7 +162,7 @@ if not st.session_state["logged_in"]:
 # apply global styles 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
-#Imports
+#Imports=
 try:
     from api.client import api_get, api_post, api_put, api_delete
     from views.dashboard import dashboard_page

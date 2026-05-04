@@ -15,6 +15,10 @@ app = FastAPI()
 def root():
     return {"status": "ok"}
 
+@app.head("/")
+def root_head():
+    return {"status": "ok"}
+
 # -------------------------------
 # CONFIG
 # ------------------------------
