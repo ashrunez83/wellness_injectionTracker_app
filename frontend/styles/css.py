@@ -98,10 +98,24 @@ input, textarea {
 
 div[data-baseweb="select"] input {
     caret-color: transparent !important;
+    color: transparent !important;
+    text-shadow: 0 0 0 transparent !important;
+    width: 1px !important;
+    min-width: 1px !important;
+    padding: 0 !important;
 }
 
 div[data-baseweb="select"] input::selection {
     background: transparent !important;
+}
+
+div[data-baseweb="select"] [data-baseweb="input"] {
+    width: 1px !important;
+    min-width: 1px !important;
+}
+
+div[data-baseweb="select"] [role="combobox"] {
+    caret-color: transparent !important;
 }
 
 /* -------------------------------
