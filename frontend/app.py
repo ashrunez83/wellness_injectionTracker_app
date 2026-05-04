@@ -45,11 +45,6 @@ div[data-testid="stStatusWidget"] {
     padding-top: 0 !important;
 }
 
-/* Remove hidden wrapper spacing */
-section.main > div {
-    padding-top: 0 !important;
-}
-
 /* Kill phantom top space */
 div[data-testid="stAppViewContainer"] > div:first-child {
     margin-top: -20px;
@@ -130,6 +125,20 @@ div[data-testid="column"] {
     color: #9A9A9A;
     text-align: right;
 }
+                
+/* 🚨 ABSOLUTE FINAL KILL SWITCH */
+
+div[data-testid="stAppViewContainer"] > div:first-child {
+    height: 0px !important;
+    min-height: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+/* Also remove internal empty blocks */
+div[data-testid="stVerticalBlock"] > div:first-child:empty {
+    display: none !important;
+}               
 
 </style>
 """, unsafe_allow_html=True)
