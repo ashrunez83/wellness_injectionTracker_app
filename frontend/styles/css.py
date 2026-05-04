@@ -96,6 +96,14 @@ input, textarea {
     padding: 8px !important;
 }
 
+div[data-baseweb="select"] input {
+    caret-color: transparent !important;
+}
+
+div[data-baseweb="select"] input::selection {
+    background: transparent !important;
+}
+
 /* -------------------------------
    SIDEBAR (luxury tone)
 -------------------------------- */

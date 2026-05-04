@@ -1023,6 +1023,20 @@ def update_payment(payment_id: str, data: PaymentModel):
         if conn:
             conn.close()
 
+
+@app.delete("/delete_payment/{payment_id}")
+def delete_payment(payment_id: str):
+    try:
+        execute_query("""
+            DELETE FROM payments
+            WHERE payment_id = %s
+        """, (payment_id,), fetch=False)
+
+        return {"message": "Payment deleted"}
+    except Exception as e:
+        print("DELETE PAYMENT ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
 # -------------------------------
 # INVENTORY FIX (REMOVED DUPLICATE ENDPOINT)
 # -------------------------------

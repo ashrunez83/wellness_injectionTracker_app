@@ -69,11 +69,10 @@ def render_add_inventory_form():
         }
     }
 
-    item_name = st.radio(
+    item_name = st.selectbox(
         "Medication",
         list(STANDARD_MEDS.keys()),
-        key="add_inventory_medication",
-        horizontal=True
+        key="add_inventory_medication"
     )
 
     selected_med = STANDARD_MEDS[item_name]

@@ -54,6 +54,9 @@ def render_payments_section(payments, patient_uuid, patient_name):
     if "show_payment_form" not in st.session_state:
         st.session_state["show_payment_form"] = False
 
+    if "delete_payment_id" not in st.session_state:
+        st.session_state["delete_payment_id"] = None
+
     # -------------------------------
     # SUCCESS MESSAGE
     # -------------------------------
@@ -72,13 +75,16 @@ def render_payments_section(payments, patient_uuid, patient_name):
             for i, payment in enumerate(payments):
                 payment_id = payment.get("payment_id")
 
-                col1, col2 = st.columns([6, 1])
+                col1, col2, col3 = st.columns([6, 1, 1])
 
                 with col1:
                     st.markdown(f"""
                     <div class="content-card">
                         💵 ${payment.get('amount')}<br>
                         📅 {payment.get('payment_date')}<br>
+                        Due: {payment.get('next_payment_due') or 'N/A'}<br>
+                        Type: {payment.get('payment_type') or 'N/A'}<br>
+                        Autopay: {payment.get('autopay') or 'No'}<br>
                         📝 {payment.get('notes', '')}
                     </div>
                     """, unsafe_allow_html=True)
@@ -86,6 +92,33 @@ def render_payments_section(payments, patient_uuid, patient_name):
                 with col2:
                     if st.button("✏️ Edit", key=f"edit_payment_{payment_id}_{i}"):
                         st.session_state["editing_payment"] = payment
+                        st.rerun()
+
+                with col3:
+                    if st.button("🗑️ Delete", key=f"delete_payment_{payment_id}_{i}"):
+                        st.session_state["delete_payment_id"] = payment_id
+                        st.rerun()
+
+            if st.session_state["delete_payment_id"]:
+                st.warning("Delete this payment?")
+                col_confirm, col_cancel = st.columns(2)
+
+                with col_confirm:
+                    if st.button("Confirm Delete", key="confirm_delete_payment"):
+                        response, result = api_delete(
+                            f"/delete_payment/{st.session_state['delete_payment_id']}"
+                        )
+
+                        if response and response.status_code == 200 and "error" not in result:
+                            st.session_state["payment_success"] = "Payment deleted"
+                            st.session_state["delete_payment_id"] = None
+                            st.rerun()
+                        else:
+                            st.error(result.get("error", "Delete failed"))
+
+                with col_cancel:
+                    if st.button("Cancel", key="cancel_delete_payment"):
+                        st.session_state["delete_payment_id"] = None
                         st.rerun()
 
     # -------------------------------
@@ -110,6 +143,29 @@ def render_payments_section(payments, patient_uuid, patient_name):
                 value=pd.to_datetime(payment.get("payment_date")).date()
             )
 
+            payment_type = st.selectbox(
+                "Payment Type",
+                ["Monthly", "Autopay"],
+                index=1 if payment.get("payment_type") == "Autopay" else 0
+            )
+
+            autopay = st.selectbox(
+                "Autopay",
+                ["No", "Yes"],
+                index=1 if payment.get("autopay") == "Yes" else 0
+            )
+
+            payment_frequency_days = st.number_input(
+                "Payment Frequency (days)",
+                min_value=1,
+                step=1,
+                value=int(payment.get("payment_frequency_days") or 30)
+            )
+
+            next_payment_due = date_paid + datetime.timedelta(
+                days=int(payment_frequency_days)
+            )
+
             notes = st.text_area(
                 "Notes",
                 value=payment.get("notes", "")
@@ -132,6 +188,10 @@ def render_payments_section(payments, patient_uuid, patient_name):
                 **payment,
                 "amount": amount,
                 "payment_date": str(date_paid),
+                "autopay": autopay,
+                "payment_type": payment_type,
+                "payment_frequency_days": int(payment_frequency_days),
+                "next_payment_due": str(next_payment_due),
                 "notes": notes
             }
 
@@ -654,24 +714,25 @@ def render_add_payment_form(patient_uuid, patient_name):
             amount = st.number_input("Amount", min_value=0.0, step=1.0)
             payment_date = st.date_input("Payment Date")
 
-            autopay = st.selectbox(
-                "Autopay",
-                ["No", "Yes", "3 Months"]
-            )
-
-        with col2:
             payment_type = st.selectbox(
                 "Payment Type",
-                ["Standard", "Testosterone Plan"]
+                ["Monthly", "Autopay"]
             )
 
-            lab_package = None
+            autopay = st.selectbox("Autopay", ["No", "Yes"])
 
-            if payment_type == "Testosterone Plan":
-                lab_package = st.selectbox(
-                    "Lab Package",
-                    ["No Labs ($165)", "Labs $110", "Labs $190"]
-                )
+        with col2:
+            payment_frequency_days = st.number_input(
+                "Payment Frequency (days)",
+                min_value=1,
+                step=1,
+                value=30
+            )
+
+            next_payment_due = payment_date + datetime.timedelta(
+                days=int(payment_frequency_days)
+            )
+            st.caption(f"Next due: {next_payment_due.strftime('%m/%d/%Y')}")
 
         notes = st.text_area("Notes")
 
@@ -679,24 +740,15 @@ def render_add_payment_form(patient_uuid, patient_name):
 
     if submitted:
 
-        # -------------------------------
-        # AUTO PRICING LOGIC
-        # -------------------------------
-        if payment_type == "Testosterone Plan":
-            if lab_package == "No Labs ($165)":
-                amount = 165
-            elif lab_package == "Labs $110":
-                amount = 110
-            elif lab_package == "Labs $190":
-                amount = 190
-
         payload = {
             "patient_uuid": str(patient_uuid),
             "amount": amount,
             "payment_date": str(payment_date),
             "autopay": autopay,
             "payment_type": payment_type,
-            "lab_package": lab_package,
+            "lab_package": None,
+            "payment_frequency_days": int(payment_frequency_days),
+            "next_payment_due": str(next_payment_due),
             "notes": notes
         }
 
