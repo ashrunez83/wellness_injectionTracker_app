@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 import psycopg2
 from pydantic import BaseModel
 from typing import Optional, List
@@ -1143,30 +1144,34 @@ def get_inventory():
 
 @app.post("/add_inventory")
 def add_inventory(item: InventoryItem):
-    execute_query("""
-        INSERT INTO inventory (
-            item_name,
-            lot_number,
-            quantity,
-            unit,
-            reorder_level,
-            concentration_ml_per_vial,
-            ml_per_vial,
-            mg_per_ml
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        item.item_name,
-        item.lot_number,
-        item.quantity,
-        item.unit,
-        item.reorder_level,
-        item.ml_per_vial,   # keeps old backend compatibility
-        item.ml_per_vial,
-        item.mg_per_ml
-    ), fetch=False)
+    try:
+        execute_query("""
+            INSERT INTO inventory (
+                item_name,
+                lot_number,
+                quantity,
+                unit,
+                reorder_level,
+                concentration_ml_per_vial,
+                ml_per_vial,
+                mg_per_ml
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            item.item_name,
+            item.lot_number,
+            item.quantity,
+            item.unit,
+            item.reorder_level,
+            item.ml_per_vial,
+            item.ml_per_vial,
+            item.mg_per_ml
+        ), fetch=False)
 
-    return {"message": "Inventory added"}
+        return {"message": "Inventory added"}
+    except Exception as e:
+        print("ADD INVENTORY ERROR:", e)
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 
 @app.delete("/delete_inventory/{inventory_id}")

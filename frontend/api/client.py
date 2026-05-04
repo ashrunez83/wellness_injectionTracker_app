@@ -24,7 +24,13 @@ def api_get(endpoint, params=None, default=None):
 def api_post(endpoint, payload):
     try:
         response = requests.post(f"{BASE_URL}{endpoint}", json=payload)
-        return response, response.json()
+        try:
+            return response, response.json()
+        except ValueError:
+            return response, {
+                "error": response.text.strip()
+                or f"API returned status {response.status_code} with an empty response"
+            }
     except Exception as e:
         return None, {"error": str(e)}
 
@@ -32,7 +38,13 @@ def api_post(endpoint, payload):
 def api_put(endpoint, payload):
     try:
         response = requests.put(f"{BASE_URL}{endpoint}", json=payload)
-        return response, response.json()
+        try:
+            return response, response.json()
+        except ValueError:
+            return response, {
+                "error": response.text.strip()
+                or f"API returned status {response.status_code} with an empty response"
+            }
     except Exception as e:
         return None, {"error": str(e)}
 
@@ -40,6 +52,12 @@ def api_put(endpoint, payload):
 def api_delete(endpoint):
     try:
         response = requests.delete(f"{BASE_URL}{endpoint}")
-        return response, response.json()
+        try:
+            return response, response.json()
+        except ValueError:
+            return response, {
+                "error": response.text.strip()
+                or f"API returned status {response.status_code} with an empty response"
+            }
     except Exception as e:
         return None, {"error": str(e)}

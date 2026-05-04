@@ -135,7 +135,7 @@ def render_add_inventory_form():
 
             response, result = api_post("/add_inventory", payload)
 
-            if response and response.status_code == 200:
+            if response and response.status_code == 200 and "error" not in result:
                 st.session_state["inventory_success"] = "Item added ✅"
                 clear_inventory_action()
                 st.rerun()
