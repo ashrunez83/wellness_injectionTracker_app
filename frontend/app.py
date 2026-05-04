@@ -3,6 +3,7 @@ import streamlit as st
 # -------------------------------
 # SAFE IMPORTS (PREVENT CRASH)
 # -------------------------------
+st.write("TOP OF FILE")
 
 # 🔹 TEMP (later from login / DB)
 CLINIC_NAME = "Copper Rock Clinic"
@@ -60,91 +61,27 @@ init_session_state()
 # LOGIN PAGE
 # -------------------------------
 def login_page():
-    st.markdown("""
-        <style>
-            /* Kill ALL spacing */
-            .block-container {
-                padding: 0rem !important;
-            }
 
-            header[data-testid="stHeader"],
-            div[data-testid="stToolbar"],
-            div[data-testid="stDecoration"],
-            div[data-testid="stStatusWidget"] {
-                display: none !important;
-            }
-
-            /* Full page center */
-            .center-wrapper {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
-
-            .login-card {
-                width: 360px;
-                padding: 36px 32px;
-                border-radius: 18px;
-                background: #FFFFFF;
-                border: 1px solid #E8E1D5;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-                text-align: center;
-            }
-
-            .login-title {
-                font-size: 1.2rem;
-                font-weight: 600;
-                margin-bottom: 4px;
-            }
-
-            .login-sub {
-                font-size: 12px;
-                color: #9A9A9A;
-                margin-bottom: 20px;
-            }
-
-            div[data-testid="stForm"] {
-                max-width: 280px;
-                margin: 0 auto;
-            }
-
-            .footer {
-                position: fixed;
-                bottom: 20px;
-                right: 30px;
-                font-size: 12px;
-                color: #9A9A9A;
-                text-align: right;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="center-wrapper">', unsafe_allow_html=True)
-
+    st.markdown("""<style> ... </style>""", unsafe_allow_html=True)
+    st.markdown('<div class="login-root">', unsafe_allow_html=True)
     st.markdown('<div class="login-card">', unsafe_allow_html=True)
-
     st.markdown('<div class="login-title">Copper Rock Clinic</div>', unsafe_allow_html=True)
     st.markdown('<div class="login-sub">Secure access portal</div>', unsafe_allow_html=True)
-
     with st.form("login_form"):
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         submitted = st.form_submit_button("Sign In")
-
     if submitted:
         if username == "admin" and password == "admin123":
             st.session_state["logged_in"] = True
             st.rerun()
         else:
             st.error("Invalid credentials")
-
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown("""
         <div class="footer">
-            <div style="font-weight:500;">Orelia ✨</div>
+            <div style="font-weight:500;">Powered By Orelia ✨</div>
             <div>Clinic Management Systems</div>
         </div>
     """, unsafe_allow_html=True)
@@ -159,7 +96,6 @@ if not st.session_state["logged_in"]:
     login_page()
     st.stop()
 
-# apply global styles 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
 #Imports=
