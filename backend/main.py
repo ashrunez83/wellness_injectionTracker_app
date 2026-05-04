@@ -25,6 +25,8 @@ def root_head():
 # CONFIG
 # ------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.strip()
 engine = None
 
 if DATABASE_URL:
