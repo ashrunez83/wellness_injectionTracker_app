@@ -8,7 +8,6 @@ from datetime import date, timedelta
 import json
 import uuid
 import os
-from urllib.parse import urlparse
 from pydantic import Field
 
 app = FastAPI()
@@ -24,40 +23,45 @@ def root_head():
 # -------------------------------
 # CONFIG
 # ------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL:
-    DATABASE_URL = DATABASE_URL.strip()
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-engine = None
+def get_env(name):
+    value = os.getenv(name)
+    return value.strip() if value else None
 
-if DATABASE_URL:
-    try:
-        from sqlalchemy import create_engine
-        engine = create_engine(DATABASE_URL)
-        print("Database connected")
 
-    except Exception as e:
-        print(f" DB connection failed: {e}")
-else:
-    print("DATABASE_URL not set - running without DB")                                                                         
+DB_HOST = get_env("DB_HOST")
+DB_PORT = get_env("DB_PORT") or "5432"
+DB_NAME = get_env("DB_NAME")
+DB_USER = get_env("DB_USER")
+DB_PASSWORD = get_env("DB_PASSWORD")
+
 
 # -------------------------------
 # DB HELPER
 # -------------------------------
 def get_db_connection():
-    if DB_HOST and DB_NAME and DB_USER and DB_PASSWORD:
-        return psycopg2.connect(
-            host=DB_HOST.strip(),
-            port=int((DB_PORT or "5432").strip()),
-            dbname=DB_NAME.strip(),
-            user=DB_USER.strip(),
-            password=DB_PASSWORD.strip(),
+    missing = [
+        name for name, value in {
+            "DB_HOST": DB_HOST,
+            "DB_PORT": DB_PORT,
+            "DB_NAME": DB_NAME,
+            "DB_USER": DB_USER,
+            "DB_PASSWORD": DB_PASSWORD,
+        }.items()
+        if not value
+    ]
+
+    if missing:
+        raise RuntimeError(
+            f"Missing database environment variables: {', '.join(missing)}"
         )
-    return psycopg2.connect(DATABASE_URL)
+
+    return psycopg2.connect(
+        host=DB_HOST,
+        port=int(DB_PORT),
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+    )
 
 
 def execute_query(query, params=None, fetch=True):
@@ -78,40 +82,27 @@ def execute_query(query, params=None, fetch=True):
 
 
 def database_config_summary():
-    if DB_HOST and DB_NAME and DB_USER and DB_PASSWORD:
-        return {
-            "configured": True,
-            "source": "DB_* env vars",
-            "scheme": "postgresql",
-            "username": DB_USER.strip(),
-            "hostname": DB_HOST.strip(),
-            "port": int((DB_PORT or "5432").strip()),
-            "database": DB_NAME.strip(),
-        }
+    missing = [
+        name for name, value in {
+            "DB_HOST": DB_HOST,
+            "DB_PORT": DB_PORT,
+            "DB_NAME": DB_NAME,
+            "DB_USER": DB_USER,
+            "DB_PASSWORD": DB_PASSWORD,
+        }.items()
+        if not value
+    ]
 
-    if not DATABASE_URL:
-        return {
-            "configured": False,
-            "source": None,
-            "scheme": None,
-            "username": None,
-            "hostname": None,
-            "port": None,
-            "database": None,
-        }
-
-    parsed = urlparse(DATABASE_URL.strip())
     return {
-        "configured": True,
-        "source": "DATABASE_URL",
-        "scheme": parsed.scheme,
-        "username": parsed.username,
-        "hostname": parsed.hostname,
-        "port": parsed.port,
-        "database": parsed.path.lstrip("/") if parsed.path else None,
+        "configured": not missing,
+        "source": "DB_* env vars",
+        "scheme": "postgresql",
+        "username": DB_USER,
+        "hostname": DB_HOST,
+        "port": int(DB_PORT) if DB_PORT else None,
+        "database": DB_NAME,
+        "missing": missing,
     }
-
-
 @app.get("/debug/db")
 def debug_db():
     summary = database_config_summary()
