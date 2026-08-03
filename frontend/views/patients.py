@@ -422,6 +422,98 @@ def selected_patient_record():
     if payment_alert:
         st.warning(payment_alert)
 
+        # -------------------------------
+    # PATIENT DETAILS
+    # -------------------------------
+    st.markdown("### Patient Details")
+
+    detail_col1, detail_col2 = st.columns(2)
+    with detail_col1:
+        st.markdown(f"**Date of Birth:** {format_date_display(p.get('date_of_birth'))}")
+        st.markdown(f"**Phone:** {p.get('phone') or 'N/A'}")
+    with detail_col2:
+        st.markdown(f"**Email:** {p.get('email') or 'N/A'}")
+
+    if "editing_patient_details" not in st.session_state:
+        st.session_state["editing_patient_details"] = False
+
+    action_col1, action_col2 = st.columns([1, 5])
+    with action_col1:
+        if st.button("✏️ Edit Details", key=f"edit_patient_details_{patient_uuid}"):
+            st.session_state["editing_patient_details"] = True
+            st.rerun()
+
+    if st.session_state["editing_patient_details"]:
+        try:
+            dob_value = datetime.datetime.strptime(
+                p["date_of_birth"], "%Y-%m-%d"
+            ).date()
+        except:
+            dob_value = datetime.date(1990, 1, 1)
+
+        with st.form(f"edit_patient_details_form_{patient_uuid}"):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                updated_first_name = st.text_input(
+                    "First Name",
+                    value=p.get("first_name") or ""
+                ).strip()
+                updated_last_name = st.text_input(
+                    "Last Name",
+                    value=p.get("last_name") or ""
+                ).strip()
+                updated_dob = st.date_input(
+                    "Date of Birth",
+                    value=dob_value,
+                    min_value=datetime.date(1940, 1, 1),
+                    max_value=datetime.date.today()
+                )
+
+            with col2:
+                updated_phone = st.text_input(
+                    "Phone",
+                    value=p.get("phone") or ""
+                )
+                updated_email = st.text_input(
+                    "Email",
+                    value=p.get("email") or ""
+                )
+
+            save_col, cancel_col = st.columns([1, 1])
+            with save_col:
+                save_details = st.form_submit_button("Save Patient Details")
+            with cancel_col:
+                cancel_details = st.form_submit_button("Cancel")
+
+        if cancel_details:
+            st.session_state["editing_patient_details"] = False
+            st.rerun()
+
+        if save_details:
+            if not updated_first_name or not updated_last_name:
+                st.error("First and Last Name are required ❌")
+                return
+
+            payload = {
+                "first_name": updated_first_name,
+                "last_name": updated_last_name,
+                "date_of_birth": updated_dob.strftime("%Y-%m-%d"),
+                "phone": updated_phone,
+                "email": updated_email,
+                "pre_lab_date": p.get("pre_lab_date"),
+                "testosterone_level": p.get("testosterone_level")
+            }
+
+            response, result = api_put(f"/update_patient/{patient_uuid}", payload)
+
+            if response and response.status_code == 200 and "error" not in result:
+                st.session_state["editing_patient_details"] = False
+                st.session_state["patient_update_success"] = "Patient details updated ✅"
+                st.rerun()
+            else:
+                st.error(result.get("error", "Failed to update patient details"))
+
     # -------------------------------
     # TESTOSTERONE TRACKING (FIXED)
     # -------------------------------
